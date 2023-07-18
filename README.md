@@ -16,6 +16,7 @@ Maybe Master Receiver support in the future?
 - SSDGraphicMega.h: which defines prior functions to communicate with the display: start sequence, 
 setting cursor on display, writing strings on display (supports 8x6 ascii set of chars).
 
+Full documentantion on docs folder (only in italian for now).
 
 also called Project2305, glhf
 
