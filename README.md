@@ -17,6 +17,6 @@ Maybe Master Receiver support in the future?
 setting cursor on display, writing strings on display (supports 8x6 ascii set of chars).
 
 
-# Project2305
+also called Project2305, glhf
 
 
