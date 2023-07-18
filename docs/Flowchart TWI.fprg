@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="3.0">
+    <attributes>
+        <attribute name="name" value=""/>
+        <attribute name="authors" value="theca"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2023-07-14 08:46:22 "/>
+        <attribute name="created" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDUtMjA7IjA2OjU1OjU2ICI7MjcyMQ=="/>
+        <attribute name="edited" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDYtMjA7IjA1OjUxOjEzICI7Mjt0aGVjYTtERVNLVE9QLTAxTkswNkk7MjAyMy0wNS0yMDsiMDY6NTU6NTYgIjtBbGdvcml0bW92MC40LmZwcmc7NzM0MQ=="/>
+        <attribute name="edited" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDctMDk7IjAyOjM4OjQ1ICI7MTt0aGVjYTtERVNLVE9QLTAxTkswNkk7MjAyMy0wNS0yMDsiMDY6NTU6NTYgIjtBbGdvcml0bW92MC41LmZwcmc7NzM1Ng=="/>
+        <attribute name="edited" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDctMTQ7IjA4OjQ2OjIyICI7OTsyODM3"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="statoMacchina" type="String" array="False" size=""/>
+            <declare name="lunghezzaBuffer" type="Integer" array="False" size=""/>
+            <declare name="bufferMessaggio" type="Integer" array="True" size="LunghezzaBuffer"/>
+            <declare name="bufferIndice" type="Integer" array="False" size=""/>
+            <assign variable="statoMacchina" expression="DISATTIVO"/>
+            <assign variable="statoMacchina" expression="twStart(readWriteBit, indirizzoSlave)"/>
+            <call expression="twWrite(msg)"/>
+            <call expression="twClose()"/>
+        </body>
+    </function>
+    <function name="ClearTWINT" type="None" variable="">
+        <parameters/>
+        <body>
+            <assign variable="TWINT" expression="1"/>
+        </body>
+    </function>
+    <function name="twClose" type="None" variable="">
+        <parameters/>
+        <body>
+            <call expression="InvioSegnaleStart()"/>
+        </body>
+    </function>
+    <function name="TWIInterrupt" type="None" variable="">
+        <parameters/>
+        <body>
+            <if expression="statoMacchina == TwiAvviata">
+                <then>
+                    <call expression="InviaByte(bufferMessaggio[0])"/>
+                    <assign variable="indiceBuffer" expression="indiceBuffer + 1"/>
+                </then>
+                <else/>
+            </if>
+            <if expression="statoMacchina == AckAddressRicevuto">
+                <then>
+                    <if expression="indirizzoSlave[7] == 0">
+                        <then>
+                            <assign variable="statoMacchina" expression="InvioMessaggio"/>
+                        </then>
+                        <else>
+                            <assign variable="statoMacchina" expression="RicezioneMessaggio"/>
+                        </else>
+                    </if>
+                </then>
+                <else>
+                    <call expression="InvioSegnaleChiusura()"/>
+                </else>
+            </if>
+            <if expression="statoMacchina == AckDataRicevuto">
+                <then>
+                    <if expression="indiceBuffer &lt;= LunghezzaBuffer">
+                        <then>
+                            <assign variable="indiceBuffer" expression="indiceBuffer + 1"/>
+                            <call expression="InviaByte(bufferMessaggio[indiceBuffer])"/>
+                            <assign variable="statoMacchina" expression="AckDataRicevuto"/>
+                        </then>
+                        <else>
+                            <assign variable="statoMacchina" expression="AckDataRicevuto"/>
+                            <call expression="InvioSegnaleChiusura()"/>
+                        </else>
+                    </if>
+                </then>
+                <else>
+                    <call expression="InvioSegnaleChiusura()"/>
+                </else>
+            </if>
+        </body>
+    </function>
+    <function name="twInit" type="Integer" variable="statoMacchina">
+        <parameters/>
+        <body>
+            <declare name="statoMacchina" type="Integer" array="False" size=""/>
+            <declare name="statoMacchina" type="Integer" array="False" size=""/>
+            <assign variable="statoMacchina" expression="PRONTO"/>
+            <assign variable="PORTSDA" expression="1"/>
+            <assign variable="PORTSCL" expression="1"/>
+            <assign variable="TWBR" expression="32"/>
+            <assign variable="TWEN" expression="1"/>
+        </body>
+    </function>
+    <function name="twRead" type="String" variable="stato">
+        <parameters/>
+        <body>
+            <declare name="stato" type="String" array="False" size=""/>
+        </body>
+    </function>
+    <function name="twStart" type="String" variable="stato">
+        <parameters>
+            <parameter name="readWriteBit" type="Integer" array="False"/>
+            <parameter name="indirizzo" type="Integer" array="False"/>
+            <parameter name="buffer" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <if expression="statoMacchina == DISATTIVO">
+                <then>
+                    <assign variable="statoMacchina" expression="twInit()"/>
+                </then>
+                <else/>
+            </if>
+            <while expression="statoMacchina != PRONTO"/>
+            <declare name="stato" type="String" array="False" size=""/>
+            <assign variable="stato" expression="STARTED"/>
+            <assign variable="bufferMessaggio[0]" expression="indirizzo+readWriteBit"/>
+        </body>
+    </function>
+    <function name="twWrite" type="String" variable="state">
+        <parameters>
+            <parameter name="msg" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="stato" type="String" array="False" size=""/>
+            <if expression="statoMacchina == AVVIATO &amp;&amp; lunghezzaBuffer &lt; 32">
+                <then>
+                    <assign variable="bufferMessaggio[lunghezzaBuffer]" expression="msg"/>
+                    <assign variable="lunghezzaBuffer" expression="lunghezzaBuffer + 1"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

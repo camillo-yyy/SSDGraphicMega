@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="3.0">
+    <attributes>
+        <attribute name="name" value=""/>
+        <attribute name="authors" value="theca"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2023-07-14 11:04:36 "/>
+        <attribute name="created" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDctMTE7IjExOjI1OjQzICI7MjcxMg=="/>
+        <attribute name="edited" value="dGhlY2E7REVTS1RPUC0wMU5LMDZJOzIwMjMtMDctMTQ7IjExOjA0OjM2ICI7MjsyODIz"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="stato" type="Integer" array="False" size=""/>
+            <declare name="linea" type="Integer" array="False" size=""/>
+            <declare name="msg" type="Integer" array="False" size=""/>
+            <assign variable="stato" expression="avviaDisplay()"/>
+            <assign variable="stato" expression="setPuntatore(linea)"/>
+            <call expression="scriviStringa(msg)"/>
+        </body>
+    </function>
+    <function name="avviaDisplay" type="None" variable="">
+        <parameters>
+            <parameter name="stato" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <call expression="twStart(SSD1306, 0)"/>
+            <for variable="i" start="0" end="LUNGHEZZASTART" direction="inc" step="1">
+                <assign variable="msg" expression="leggiROM(start[i])"/>
+                <if expression="twWrite(msg) == 1">
+                    <then>
+                        <assign variable="stato" expression="DISPLAYOFF"/>
+                        <call expression="Fine"/>
+                    </then>
+                    <else/>
+                </if>
+            </for>
+            <call expression="twClose"/>
+            <assign variable="stato" expression="DISPLAYON"/>
+        </body>
+    </function>
+    <function name="scriviChar" type="None" variable="">
+        <parameters>
+            <parameter name="msg" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <call expression="twStart(SSD1306, 0)"/>
+            <call expression="twWrite(b01000000)"/>
+            <declare name="valorechar" type="Integer" array="False" size=""/>
+            <assign variable="valorechar" expression="(msg-32)*6"/>
+            <for variable="i" start="valorechar" end="valorechar+6" direction="inc" step="1">
+                <assign variable="msg" expression="leggiROM(ascii[i])"/>
+                <if expression="twWrite(msg) == 1">
+                    <then>
+                        <call expression="Fine"/>
+                    </then>
+                    <else/>
+                </if>
+            </for>
+            <call expression="twClose"/>
+        </body>
+    </function>
+    <function name="scriviStringa" type="None" variable="">
+        <parameters>
+            <parameter name="msg" type="String" array="False"/>
+        </parameters>
+        <body>
+            <if expression="stato==DISPLAYON">
+                <then>
+                    <while expression="msg!=NULL">
+                        <call expression="scriviChar(msg[i])"/>
+                        <assign variable="msg" expression="msg+1"/>
+                    </while>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+    <function name="setPuntatore" type="Integer" variable="">
+        <parameters>
+            <parameter name="linea" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <if expression="stato==DISPLAYON">
+                <then>
+                    <if expression="linea &gt;= 0 &amp;&amp; linea &lt;= 8">
+                        <then>
+                            <call expression="twStart(SSD1306, 0)"/>
+                            <for variable="i" start="0" end="LUNGHEZZA" direction="inc" step="1">
+                                <assign variable="msg" expression="leggiROM(start[i])"/>
+                                <if expression="twWrite(msg) == 1">
+                                    <then>
+                                        <call expression="Fine"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </for>
+                            <call expression="twWrite(linea)"/>
+                            <call expression="twWrite(linea)"/>
+                            <call expression="twClose"/>
+                        </then>
+                        <else/>
+                    </if>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+</flowgorithm>
