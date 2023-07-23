@@ -1,6 +1,6 @@
 # SSD1306 Graphic Library with I2C
 
-The project was carried out as part of the Computer Architecture course for the University of Camerino.
+The project was carried out as part of the Computer Architecture course (ST1213 - ARCHITETTURA DEGLI ELABORATORI) for the University of Camerino.
 I agree to use libraries and docs for educational purposes.
 
 The project is available on Debug Platform Wokwi at the following link: https://wokwi.com/projects/365263969115559937
